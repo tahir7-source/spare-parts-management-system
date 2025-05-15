@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Base{% endblock title %}</title>
+
+    <style>
+/* Reset some default styles and add a background color to the body */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0; /* Set your desired background color */
+}
+
+/* Style the navigation bar */
+nav {
+    background-color: #333; /* Set your desired background color */
+    padding: 10px 0; /* Adjust the padding as needed */
+}
+
+/* Style the navigation links */
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+nav li {
+    display: inline-block;
+    margin-right: 20px; /* Adjust the spacing between links */
+}
+
+nav a {
+    text-decoration: none;
+    color: #fff; /* Set your desired text color */
+    font-weight: bold;
+    font-size: 16px; /* Set your desired font size */
+    transition: color 0.3s ease; /* Add a smooth color transition */
+}
+
+/* Change link color on hover */
+nav a:hover {
+    color: #ffcc00; /* Set your desired hover color */
+}
+
+/* Add additional styles for your page content */
+h1, h2, h3, h4 {
+    color: #333;
+    text-align: center;
+    margin: 20px;
+}
+
+form {
+    max-width: 400px;  
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+input[type="submit"],
+button {
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: none;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #ffcc00;
+}
+
+a {
+    color: #333;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+a:hover {
+    color: #ffcc00;
+}
+
+/* Style the table */
+table {
+    width: 100%;
+    max-width: 100%; /* Ensure table doesn't exceed container width */
+    margin: 20px auto;
+    border-collapse: collapse;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
+
+/* Table header and data styling */
+th, td {
+    padding: 12px;
+    text-align: Left;
+    border: 1px solid #ddd;
+    word-wrap: break-word; /* Ensure long words break and don't overflow */
+}
+
+th {
+    background-color: #333;
+    color: #fff;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Style links in the table */
+table a {
+    color: #333;
+    text-decoration: none;
+}
+
+table a:hover {
+    color: #ffcc00;
+}
+
+/* Responsive design for forms inside tables */
+table > form {
+    margin: 0; /* Remove extra margin for forms inside tables */
+    padding: 0; /* Remove extra padding for forms inside tables */
+}
+
+table > form select,
+form input[type="submit"] {
+    width: auto; /* Allow form controls to shrink as needed */
+    margin: 0; /* Remove extra margin */
+    padding: 4px 8px; /* Adjust padding */
+}
+
+table > form input[type="submit"] {
+    background-color: #333; /* Consistent button style */
+    color: #fff;
+    cursor: pointer;
+}
+
+table > form input[type="submit"]:hover {
+    background-color: #ffcc00;
+}
+
+/* Ensure the page layout adjusts to different screen sizes */
+@media (max-width: 768px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Spare Part System</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'report_view' %}">Reports</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'index' %}">Login</a></li>
+            
+                {% endif %}
+
+        </ul>
+    </nav>
+
+
+
+<div>
+    {% block content %}
+    {% endblock content %}
+</div>
+
+</body>
+</html>

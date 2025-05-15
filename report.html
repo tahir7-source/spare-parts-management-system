@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Report{% endblock title %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+    <!-- Buttons to Print or Download CSV -->
+    <div>
+        <form method="post" action="{% url 'download_csv' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="start_date" value="{{ request.GET.start_date }}">
+            <input type="hidden" name="end_date" value="{{ request.GET.end_date }}">
+            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Download CSV</button>
+        </form>
+    </div>
+    <div>
+        <button style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="window.print()">Print Report</button>
+    </div>
+</div>
+
+<div style="display: flex;">
+
+    <!-- Left Side: Sales Report -->
+    <div style="flex: 1; padding: 20px; border-right: 1px solid #ccc;">
+        <h3>Sales Report</h3>
+        <form method="get" action="{% url 'report_view' %}">
+            <label for="start_date">Start Date:</label><br>
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}"><br><br>
+            <label for="end_date">End Date:</label><br>
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}"><br><br>
+            <button type="submit">Filter</button>
+        </form>
+
+        <hr>
+
+        {% if no_records_message %}
+            <p>{{ no_records_message }}</p>
+        {% else %}
+            <p>Total Sales: {{ total_sales }}</p>
+            <table border="1" cellpadding="10" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Sale Price</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                        <tr>
+                            <td>{{ sale.spare_part.name }}</td>
+                            <td>{{ sale.quantity }}</td>
+                            <td>{{ sale.sale_price }}</td>
+                            <td>{{ sale.total_price }}</td>
+                            <td>{{ sale.date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    <!-- Right Side: Purchase Report -->
+    <div style="flex: 1; padding: 20px;">
+        <h3>Purchase Report</h3>
+
+        {% if no_records_message %}
+            <p>{{ no_records_message }}</p>
+        {% else %}
+            <p>Total Purchases: {{ total_purchases }}</p>
+            <table border="1" cellpadding="10" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Purchase Price</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                        <tr>
+                            <td>{{ purchase.spare_part.name }}</td>
+                            <td>{{ purchase.quantity }}</td>
+                            <td>{{ purchase.purchase_price }}</td>
+                            <td>{{ purchase.total_price }}</td>
+                            <td>{{ purchase.date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+</div>
+
+<h3>Profit: {{ profit }}</h3>
+{% endblock content %}

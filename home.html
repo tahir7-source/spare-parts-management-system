@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock title %}
+{% block content %}
+<div style="display: flex;">
+    <style>
+    .custom-button {
+        background-color: black;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .custom-button:hover {
+        background-color: yellow;
+        color: black;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .button-wrapper {
+        flex: 2;
+        margin: 4px;
+    }
+
+    .button-wrapper:nth-child(2) {
+        margin: 6px;
+    }
+</style>
+    
+    
+    <!-- Left Side: Search and Actions -->
+    <div style="flex: 1; padding: 20px; border-right: 1px solid #ccc;">
+        <h3>Search Spare Parts</h3>
+        <form method="get" action="{% url 'home' %}">
+            <label for="search">Search by Name:</label><br>
+            <input type="text" id="search" name="q" value="{{ query }}"><br><br>
+            <button type="submit">Search</button>
+        </form>
+
+        <hr>
+
+        <h3>Actions</h3>
+        <form method="post" action="{% url 'purchase_or_sale' %}" id="transactionForm">
+            {% csrf_token %}
+            <label for="item">Select Item:</label><br>
+            <select id="item" name="spare_part" required>
+                <option value="">Select Spare Part</option>
+                {% for part in spare_parts %}
+                    <option value="{{ part.id }}" data-price="{{ part.price }}" data-stock="{{ part.quantity_in_stock }}">
+                        {{ part.name }} (In Stock: {{ part.quantity_in_stock }})
+                    </option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="quantity">Quantity:</label><br>
+            <input type="number" id="quantity" name="quantity" min="1" value="1" required><br><br>
+
+            <label for="totalPrice">Total Price:</label><br>
+            <input type="text" id="totalPrice" name="total_price" readonly><br><br>
+
+            <button type="submit" name="action" value="purchase">Purchase</button>
+            <button type="submit" name="action" value="sale">Sale</button>
+        </form>
+
+        <!-- Message Display Section -->
+        <p id="message" style="color: red;"></p>
+    </div>
+
+    <!-- Right Side: Display Spare Parts Table -->
+    <div style="flex: 2; padding: 20px;">
+        <h3 >Available Spare Parts</h3>
+        <table border="1" cellpadding="10" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>per unit Price</th>
+                    <th>Quantity in Stock</th>
+                    <th>Date Added</th>
+                    <th>Modification</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for part in spare_parts %}
+                    <tr style="background-color: {% if part.quantity_in_stock < 10 %}#ffcccc{% endif %};">
+                        <td>
+                            {% if part.image %}
+                                <img src="{{ part.image.url }}" alt="{{ part.name }}" style="width: 50px; height: 50px;">
+                            {% else %}
+                                No Image
+                            {% endif %}
+                        </td>
+                        <td>{{ part.name }}</td>
+                        <td>{{ part.price }}</td>
+                        <td>{{ part.quantity_in_stock }}</td>
+                        <td>{{ part.date_added }}</td>
+                        <td>
+                          <div class="button-container">
+    <div class="button-wrapper">
+        <button href="{% url 'update_spare_part' part.id %}" class="custom-button">Update</button>
+    </div>
+    <div class="button-wrapper">
+        <button href="{% url 'delete_spare_part' part.id %}" class="custom-button" onclick="return confirm('Are you sure you want to delete this part?');">Delete</button>
+    </div>
+</div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- JavaScript to Handle Price Calculation and Stock Checking -->
+<!-- JavaScript to Handle Price Calculation and Stock Checking -->
+<script>
+    const itemSelect = document.getElementById('item');
+    const quantityInput = document.getElementById('quantity');
+    const totalPriceInput = document.getElementById('totalPrice');
+    const messageElement = document.getElementById('message');
+    
+    // Update total price when item or quantity changes
+    function updateTotalPrice() {
+        const selectedItem = itemSelect.options[itemSelect.selectedIndex];
+        const price = selectedItem.getAttribute('data-price');
+        const stock = selectedItem.getAttribute('data-stock');
+        const quantity = parseInt(quantityInput.value, 10);
+
+        if (selectedItem.value) {
+            if (quantity > parseInt(stock, 10)) {
+                messageElement.textContent = 'Stock not available for sale';
+                totalPriceInput.value = '';
+            } else {
+                messageElement.textContent = '';
+                totalPriceInput.value = (price * quantity).toFixed(2);
+            }
+        } else {
+            totalPriceInput.value = '';
+        }
+    }
+
+    // Show success or failure message after transaction
+    document.getElementById('transactionForm').onsubmit = function(event) {
+        const selectedItem = itemSelect.options[itemSelect.selectedIndex];
+        const stock = selectedItem.getAttribute('data-stock');
+        const quantity = parseInt(quantityInput.value, 10);
+        const action = document.activeElement.value; // 'purchase' or 'sale'
+
+        if (action === 'sale' && quantity > parseInt(stock, 10)) {
+            messageElement.textContent = 'Not enough stock available for sale';
+            event.preventDefault(); // Prevent sale if stock is insufficient
+        } else {
+            messageElement.textContent = action.charAt(0).toUpperCase() + action.slice(1) + ' successful';
+        }
+    };
+
+    // Add event listeners for changes
+    itemSelect.addEventListener('change', updateTotalPrice);
+    quantityInput.addEventListener('input', updateTotalPrice);
+</script>
+
+{% endblock content %}
